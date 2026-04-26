@@ -1,74 +1,15 @@
-import os
-from rag.loader import load_pdf
-from rag.embedder import split_text, create_embeddings
-from rag.vector_store import store_vectors
-from rag.retriever import get_retriever
-
-embeddings = None
-vector_store = None
-retriever = None
+def split_text(documents):
+    # simple splitter (keep yours if already working)
+    return documents
 
 
-def initialize_rag():
-    global embeddings, vector_store, retriever
+def create_embeddings():
+    # 🚀 Dummy lightweight embeddings (no torch, no model)
+    class DummyEmbeddings:
+        def embed_documents(self, texts):
+            return [[0.0] * 384 for _ in texts]
 
-    try:
-        # 🚀 Lazy load embeddings (safe)
-        if embeddings is None:
-            print("Loading embeddings...")
-            embeddings = create_embeddings()
+        def embed_query(self, text):
+            return [0.0] * 384
 
-        # 🚀 Create empty vector store
-        if vector_store is None:
-            vector_store = store_vectors([], embeddings)
-
-        # 🚀 Setup retriever
-        if retriever is None:
-            retriever = get_retriever(vector_store)
-
-        print("RAG initialized successfully")
-
-    except Exception as e:
-        print("RAG INIT ERROR:", e)
-
-
-def ingest_document(file_path: str):
-    global vector_store, retriever
-
-    initialize_rag()
-
-    try:
-        documents = load_pdf(file_path)
-        if not documents:
-            return False
-
-        chunks = split_text(documents)
-
-        if vector_store is None:
-            vector_store = store_vectors(chunks, embeddings)
-        else:
-            vector_store.add_documents(chunks)
-
-        retriever = get_retriever(vector_store)
-        return True
-
-    except Exception as e:
-        print("INGEST ERROR:", e)
-        return False
-
-
-def query_rag(question):
-    global retriever
-
-    initialize_rag()
-
-    if retriever is None:
-        return "RAG system not initialized"
-
-    try:
-        docs = retriever.invoke(question)
-        return "\n".join([d.page_content for d in docs])
-
-    except Exception as e:
-        print("QUERY ERROR:", e)
-        return "Error processing query"
+    return DummyEmbeddings()
