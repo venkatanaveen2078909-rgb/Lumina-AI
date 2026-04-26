@@ -1,29 +1,29 @@
 fastapi==0.111.0
 uvicorn[standard]==0.30.1
 
-# Core ML stack (compatible versions)
+# Core ML (compatible + stable)
 
 torch==2.4.0
 transformers==4.41.2
 sentence-transformers==2.7.0
 
-# IMPORTANT: Fix NumPy crash
+# Critical fix (prevents crash)
 
 numpy<2
 
-# LangChain + RAG
+# LangChain stack (aligned versions)
 
 langchain==0.2.6
 langchain-community==0.2.6
 langchain-core==0.2.10
 langchain-text-splitters==0.2.1
 
-# Vector + PDF
+# RAG essentials
 
 faiss-cpu==1.7.4
 pypdf==4.2.0
 
-# Utils
+# Supporting libs
 
 scikit-learn==1.4.2
 scipy==1.13.1
