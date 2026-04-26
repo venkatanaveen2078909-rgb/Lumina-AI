@@ -13,14 +13,20 @@ def initialize_rag():
     global embeddings, vector_store, retriever
 
     try:
+        # 🚀 Lazy load embeddings (safe)
         if embeddings is None:
+            print("Loading embeddings...")
             embeddings = create_embeddings()
 
+        # 🚀 Create empty vector store
         if vector_store is None:
             vector_store = store_vectors([], embeddings)
 
+        # 🚀 Setup retriever
         if retriever is None:
             retriever = get_retriever(vector_store)
+
+        print("RAG initialized successfully")
 
     except Exception as e:
         print("RAG INIT ERROR:", e)
@@ -31,15 +37,24 @@ def ingest_document(file_path: str):
 
     initialize_rag()
 
-    documents = load_pdf(file_path)
-    if not documents:
-        return False
-    
-    chunks = split_text(documents)
-    vector_store.add_documents(chunks)
+    try:
+        documents = load_pdf(file_path)
+        if not documents:
+            return False
 
-    retriever = get_retriever(vector_store)
-    return True
+        chunks = split_text(documents)
+
+        if vector_store is None:
+            vector_store = store_vectors(chunks, embeddings)
+        else:
+            vector_store.add_documents(chunks)
+
+        retriever = get_retriever(vector_store)
+        return True
+
+    except Exception as e:
+        print("INGEST ERROR:", e)
+        return False
 
 
 def query_rag(question):
@@ -50,5 +65,10 @@ def query_rag(question):
     if retriever is None:
         return "RAG system not initialized"
 
-    docs = retriever.invoke(question)
-    return "\n".join([d.page_content for d in docs])
+    try:
+        docs = retriever.invoke(question)
+        return "\n".join([d.page_content for d in docs])
+
+    except Exception as e:
+        print("QUERY ERROR:", e)
+        return "Error processing query"
